@@ -14,7 +14,7 @@ import { createPhoneModule } from "./modules/phone.js";
 import { createDatasetModule } from "./modules/dataset.js";
 import { createHelpersModule } from "./modules/helpers.js";
 import { createDateModule } from "./modules/date.js";
-import { createIdModule } from "./modules/id.js";
+import { createIdModule } from "./modules/ids.js";
 
 const locales = {
   de_DE,

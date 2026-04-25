@@ -1,6 +1,6 @@
 {
   "name": "faker-mini",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Librería ultra liviana para generar datos falsos realistas.",
   "type": "module",
   "main": "dist/index.js",
