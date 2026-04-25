@@ -39,10 +39,10 @@ export default defineConfig({
 
     // Enlaces a redes/repositorios
     socialLinks: [
-      {
-        icon: "github",
-        link: "https://github.com/DanielRiverol/data-faker-mini",
-      },
+      // {
+      //   icon: "github",
+      //   link: "https://github.com/DanielRiverol/data-faker-mini",
+      // },
       {
         icon: "npm",
         link: "https://www.npmjs.com/package/faker-mini",
