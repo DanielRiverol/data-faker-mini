@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { createFaker } from '../../src/index.js'
+import { createMock } from '../../src/index.js'
 
-const faker = createFaker({ locale: 'en_US' })
+const faker = createMock({ locale: 'en_US' })
 
 // Estado inicial con TODAS las propiedades
 const mockData = ref({
@@ -73,12 +73,12 @@ yarn add faker-mini
 
 Aquí tienes un ejemplo rápido de cómo usarlo en tu código:
 ```javascript
-import { createFaker } from 'faker-mini';
+import { createMock } from 'faker-mini';
 
-const faker = createFaker({ locale: 'es_AR' });
-const payload = faker.dataset.generate(1, () => ({
-  id: faker.uuid.v4(),
-  user: faker.person.fullName()
+const mock = createMock({ locale: 'es_AR' });
+const payload = mock.dataset.generate(1, () => ({
+  id: mock.uuid.v4(),
+  user: mock.person.fullName()
 }));
 
 console.log(payload);
