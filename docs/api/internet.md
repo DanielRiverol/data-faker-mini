@@ -11,23 +11,23 @@ Genera un correo electrónico válido y limpio (sin acentos ni caracteres especi
 - **format**: `'dot'` (defecto) o `'underscore'`.
 
 ```javascript
-faker.internet.email() // "user.test42@gmail.com"
+mock.internet.email() // "user.test42@gmail.com"
 
 // Personalizado
-faker.internet.email({ firstName: 'Facundo', lastName: 'Gómez' }) 
+mock.internet.email({ firstName: 'Facundo', lastName: 'Gómez' }) 
 // "facundo.gomez88@yahoo.com"
 ```
 ### `ipv4()`
 
 Genera una dirección IP aleatoria.
 ```javascript
-faker.internet.ipv4() // "192.168.0.1"
+mock.internet.ipv4() // "192.168.0.1"
 
 ```
 ### `domain()`
 Devuelve un dominio aleatorio de la lista global.
 ```javascript
-faker.internet.domain() // "startup.dev"
+mock.internet.domain() // "startup.dev"
 ```
 
 ---

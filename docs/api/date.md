@@ -18,7 +18,7 @@ El método `format` utiliza tokens para personalizar la salida.
 Aplica un formato a una fecha dada.
 
 ```javascript
-faker.date.format(new Date(), "dddd, D [de] MMMM") 
+mock.date.format(new Date(), "dddd, D [de] MMMM") 
 // "Viernes, 24 de Abril"
 
 ```
@@ -26,12 +26,12 @@ faker.date.format(new Date(), "dddd, D [de] MMMM")
 Genera una fecha en el pasado.
 
 ```javascript
-faker.date.past(2) // Una fecha de hace máximo 2 años
+mock.date.past(2) // Una fecha de hace máximo 2 años
 ```
 ### `birthdate(options?)`
 Genera una fecha de nacimiento lógica.
 ```javascript
 
-faker.date.birthdate({ minAge: 18, maxAge: 30 })
+mock.date.birthdate({ minAge: 18, maxAge: 30 })
 ```
 ---

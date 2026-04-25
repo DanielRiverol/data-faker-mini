@@ -9,17 +9,17 @@ Devuelve una ciudad importante del país configurado en el `locale`.
 
 ```javascript
 // Con locale: "es_AR"
-faker.location.city() // "Mar del Plata"
+mock.location.city() // "Mar del Plata"
 
 // Con locale: "fr_FR"
-faker.location.city() // "Marseille"
+mock.location.city() // "Marseille"
 ```
 ### `country()`
 
 Devuelve el nombre del país del locale actual.
 ```javascript
 
-faker.location.country() // "Argentina"
+mock.location.country() // "Argentina"
 ```
 
 ---
