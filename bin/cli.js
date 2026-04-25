@@ -32,7 +32,7 @@ ${pc.cyan(pc.bold("Uso Avanzado (Dataset JSON):"))}
   npx faker-mini dataset --count 5 --out usuarios.json --locale es_AR
   
   ${pc.yellow("Ejemplo (Schema personalizado):")}
-  npx faker-mini dataset --count 3 --schema nombre:person.fullName,ciudad:location.city --out data.json
+  npx faker-mini dataset --count 3 --schema id:id.short,nombre:person.fullName,ciudad:location.city --out data.json
 
 ${pc.cyan(pc.bold("Opciones:"))}
   ${pc.green("--help, -h")}    Muestra este menú de ayuda.
@@ -67,7 +67,8 @@ console.error(
   pc.cyan(`\n${figures.play} Faker-mini.... Generando datos....\n`),
 );
 
-const faker = createMock({ locale });
+// Actualizamos a mock
+const mock = createMock({ locale });
 
 try {
   if (moduleName === "dataset") {
@@ -81,8 +82,8 @@ try {
           const [key, pathStr] = field.split(":");
           const [mod, met] = pathStr.split(".");
 
-          if (faker[mod] && typeof faker[mod][met] === "function") {
-            item[key] = faker[mod][met]();
+          if (mock[mod] && typeof mock[mod][met] === "function") {
+            item[key] = mock[mod][met]();
           } else {
             item[key] = `Error: Método ${mod}.${met} no encontrado`;
           }
@@ -141,17 +142,20 @@ try {
       const t = translations[langPrefix] || translations["en"];
 
       schemaFactory = () => {
-        const firstName = faker.person.firstName();
-        const lastName = faker.person.lastName();
+        const firstName = mock.person.firstName();
+        const lastName = mock.person.lastName();
 
         // Usamos [t.clave] para asignar el nombre de la propiedad dinámicamente
         return {
-          [t.id]: faker.uuid.v4(),
+          [t.id]: mock.id.mongodb(), // ¡Actualizado al nuevo módulo de IDs!
           [t.name]: `${firstName} ${lastName}`,
-          [t.email]: faker.internet.email({ firstName, lastName }),
-          [t.phone]: faker.phone.number(),
-          [t.city]: faker.location.city(),
-          [t.registeredAt]: faker.date.format(faker.date.past(2), "YYYY-MM-DD"),
+          [t.email]: mock.internet.email({ firstName, lastName }),
+          [t.phone]: mock.phone.number(),
+          [t.city]: mock.location.city(),
+          [t.registeredAt]: mock.date.format(
+            mock.date.past(2),
+            "YYYY-MM-DD HH:mm:ss",
+          ),
         };
       };
     }
@@ -160,7 +164,7 @@ try {
       pc.yellow(`${figures.info} Procesando ${pc.bold(count)} registros...`),
     );
 
-    const data = faker.dataset.generate(count, schemaFactory);
+    const data = mock.dataset.generate(count, schemaFactory);
     const jsonString = JSON.stringify(data, null, 2);
 
     if (outFile) {
@@ -177,11 +181,8 @@ try {
   }
 
   // --- MODO SIMPLE ---
-  if (
-    faker[moduleName] &&
-    typeof faker[moduleName][methodName] === "function"
-  ) {
-    const result = faker[moduleName][methodName](...methodArgs);
+  if (mock[moduleName] && typeof mock[moduleName][methodName] === "function") {
+    const result = mock[moduleName][methodName](...methodArgs);
     console.log(result);
   } else {
     console.error(

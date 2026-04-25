@@ -14,7 +14,7 @@ import { createPhoneModule } from "./modules/phone.js";
 import { createDatasetModule } from "./modules/dataset.js";
 import { createHelpersModule } from "./modules/helpers.js";
 import { createDateModule } from "./modules/date.js";
-import { createUuidModule } from "./modules/uuid.js";
+import { createIdModule } from "./modules/id.js";
 
 const locales = {
   de_DE,
@@ -39,7 +39,7 @@ export const createMock = ({ locale = "en_US", seed } = {}) => {
   mock.internet = createInternetModule({ random, locale: localeData });
   mock.phone = createPhoneModule({ random, locale: localeData });
   mock.date = createDateModule({ random, localeCode: locale });
-  mock.uuid = createUuidModule({ random });
+  mock.id = createIdModule({ random });
   mock.dataset = createDatasetModule();
   mock.helpers = createHelpersModule();
 

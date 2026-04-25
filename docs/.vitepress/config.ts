@@ -41,7 +41,7 @@ export default defineConfig({
           { text: "Date", link: "/api/date" },
           { text: "Location", link: "/api/location" },
           { text: "Phone", link: "/api/phone" },
-          { text: "UUID", link: "/api/uuid" },
+          { text: "IDs", link: "/api/ids" },
         ],
       },
     ],
