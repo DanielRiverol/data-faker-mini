@@ -1,0 +1,42 @@
+{
+  "name": "faker-mini",
+  "version": "1.0.1",
+  "description": "Librería ultra liviana para generar datos falsos realistas.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "faker-mini": "./dist/cli.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "node src/test.js",
+    "build:lib": "esbuild src/index.js --bundle --minify --format=esm --outfile=dist/index.js",
+    "build:cli": "esbuild bin/cli.js --bundle --minify --format=esm --platform=node --outfile=dist/cli.js",
+    "build": "npm run build:lib && npm run build:cli",
+    "prepublishOnly": "npm run build",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "sideEffects": false,
+  "keywords": [
+    "faker",
+    "mock",
+    "testing",
+    "data",
+    "cli"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "figures": "^6.1.0",
+    "picocolors": "^1.1.1",
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.33"
+  }
+}

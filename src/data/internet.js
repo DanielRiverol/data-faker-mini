@@ -1,0 +1,30 @@
+export const domains = [
+  "gmail.com",
+  "yahoo.com",
+  "outlook.com",
+  "hotmail.com",
+  "icloud.com",
+  "proton.me",
+  "zoho.com",
+  "yandex.com",
+  "live.com",
+  "aol.com",
+  "mail.com",
+  "fastmail.com",
+  "dev.io",
+  "company.co",
+  "startup.dev",
+];
+
+export const tlds = [
+  ".com",
+  ".org",
+  ".net",
+  ".dev",
+  ".io",
+  ".app",
+  ".tech",
+  ".co",
+  ".ai",
+  ".info",
+];
