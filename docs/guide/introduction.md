@@ -1,3 +1,45 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import { createFaker } from '../../src/index.js'
+
+const faker = createFaker({ locale: 'en_US' })
+
+// Estado inicial con TODAS las propiedades
+const mockData = ref({
+  id: '...',
+  nombre: 'Cargando...',
+  genero: '...',
+  nacimiento: '...',
+  email: '...',
+  telefono: '...',
+  ubicacion: '...',
+  ip: '...',
+  website: '...'
+})
+
+const regenerar = () => {
+  // Generamos variables previas para asegurar consistencia (ej: el email coincide con el nombre)
+  const primerNombre = faker.person.firstName();
+  const apellido = faker.person.lastName();
+  
+  mockData.value = {
+    id: faker.uuid.v4(),
+    nombre: `${primerNombre} ${apellido}`,
+    genero: faker.person.gender(),
+    nacimiento: faker.date.format(faker.date.birthdate({ minAge: 18, maxAge: 65 }), 'YYYY-MM-DD'),
+    email: faker.internet.email({ firstName: primerNombre, lastName: apellido }),
+    telefono: faker.phone.number(),
+    ubicacion: `${faker.location.city()}, ${faker.location.country()}`,
+    ip: faker.internet.ipv4(),
+    website: `https://www.${faker.internet.domain()}`
+  }
+}
+
+onMounted(() => {
+  regenerar()
+})
+</script>
+
 # Introducción
 
 **Faker-Mini** es una librería diseñada para desarrolladores que necesitan datos de prueba reales pero no quieren instalar paquetes de 50MB.
@@ -15,7 +57,7 @@ A diferencia de otras librerías, Faker-Mini aprovecha las APIs nativas del nave
 Instálalo usando tu gestor de paquetes favorito:
 
 ::: code-group
-```bash [npm]
+```bash[npm]
 npm install faker-mini
 ```
 ```bash[pnpm]
@@ -36,5 +78,89 @@ import { faker } from 'faker-mini';
 const nombre = faker.person.fullName();
 console.log(`Hola, mi nombre es ${nombre}`);
 ```
-
 ---
+## 🎮 Pruébalo en vivo
+
+<div class="faker-demo">
+  <div class="faker-output">
+    <div class="grid">
+      <p><strong>ID:</strong> <span class="mono">{{ mockData.id }}</span></p>
+      <p><strong>Nombre:</strong> {{ mockData.nombre }}</p>
+      <p><strong>Género:</strong> {{ mockData.genero }}</p>
+      <p><strong>Nacimiento:</strong> {{ mockData.nacimiento }}</p>
+      <p><strong>Email:</strong> <span class="email">{{ mockData.email }}</span></p>
+      <p><strong>Teléfono:</strong> {{ mockData.telefono }}</p>
+      <p><strong>Ubicación:</strong> {{ mockData.ubicacion }}</p>
+      <p><strong>IP:</strong> <span class="mono">{{ mockData.ip }}</span></p>
+      <p><strong>Website:</strong> 
+        <a :href="mockData.website" target="_blank">
+          {{ mockData.website }}
+        </a>
+      </p>
+    </div>
+
+  </div>
+
+  <button class="btn-generar" @click="regenerar">
+    ↻ Generar Nuevo Usuario
+  </button>
+</div>
+
+<style>
+.faker-demo {
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-top: 1rem;
+}
+
+.faker-output {
+  font-family: monospace;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* GRID PRO */
+.grid {
+  display: grid;
+  /* grid-template-columns: 1fr 1fr; */
+  gap: 0.4rem 1rem;
+}
+
+.grid p {
+  margin: 0;
+}
+
+.email {
+  color: var(--vp-c-brand);
+}
+
+.mono {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* BOTÓN */
+.btn-generar {
+  background: var(--vp-c-brand);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-generar:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.btn-generar:active {
+  transform: translateY(0);
+  opacity: 0.7;
+}
+</style>
+

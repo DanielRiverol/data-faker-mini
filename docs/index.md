@@ -10,9 +10,6 @@ hero:
     - theme: brand
       text: Empezar a usar
       link: /guide/introduction
-    # - theme: alt
-    #   text: Ver en GitHub
-    #   link: https://github.com/tu-usuario/faker-mini
 
 features:
   - title: ⚡ Ultra Liviana y Modular

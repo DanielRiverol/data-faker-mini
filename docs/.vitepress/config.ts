@@ -13,7 +13,16 @@ export default defineConfig({
       { text: "Inicio", link: "/" },
       { text: "Documentación", link: "/guide/introduction" },
     ],
-
+    // Search
+    search: {
+      provider: 'local'
+    },
+    // Footer
+    footer: {
+      message:
+        'Hecho con ❤️ por <a href="https://github.com/DanielRiverol">Daniel Riverol</a>',
+      copyright: `Copyright © ${new Date().getFullYear()}`,
+    },
     // Barra lateral de navegación
     sidebar: [
       {
@@ -39,10 +48,6 @@ export default defineConfig({
 
     // Enlaces a redes/repositorios
     socialLinks: [
-      // {
-      //   icon: "github",
-      //   link: "https://github.com/DanielRiverol/data-faker-mini",
-      // },
       {
         icon: "npm",
         link: "https://www.npmjs.com/package/faker-mini",
