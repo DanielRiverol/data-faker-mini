@@ -2,6 +2,7 @@ import { defineConfig } from "vitepress";
 
 export default defineConfig({
   title: "Faker-Mini",
+  
   description: "Librería ultra liviana para generar datos falsos.",
   lang: "es-AR", // Para que el buscador y la página entiendan que es en español
 
@@ -37,7 +38,7 @@ export default defineConfig({
 
     // Enlaces a redes/repositorios
     socialLinks: [
-      { icon: "github", link: "https://github.com/DanielRiverol/faker-mini" },
+      { icon: "github", link: "https://github.com/DanielRiverol/data-faker-mini" },
       {
         icon: "npm",
         link: "https://www.npmjs.com/package/faker-mini",
