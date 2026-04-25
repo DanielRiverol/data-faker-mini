@@ -1,4 +1,4 @@
-import { createFaker } from "./createFaker.js";
+import { createMock } from "./createMock.js";
 
-export const fakerMini = createFaker();
-export { createFaker };
+export const mockMini = createMock();
+export { createMock };

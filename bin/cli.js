@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import pc from "picocolors";
 import figures from "figures";
-import { createFaker } from "../src/index.js";
+import { createMock } from "../src/index.js";
 
 const args = process.argv.slice(2);
 
@@ -67,7 +67,7 @@ console.error(
   pc.cyan(`\n${figures.play} Faker-mini.... Generando datos....\n`),
 );
 
-const faker = createFaker({ locale });
+const faker = createMock({ locale });
 
 try {
   if (moduleName === "dataset") {

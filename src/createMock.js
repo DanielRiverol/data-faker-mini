@@ -13,7 +13,7 @@ import { createInternetModule } from "./modules/internet.js";
 import { createPhoneModule } from "./modules/phone.js";
 import { createDatasetModule } from "./modules/dataset.js";
 import { createHelpersModule } from "./modules/helpers.js";
-import { createDateModule } from "./modules/date.js"; 
+import { createDateModule } from "./modules/date.js";
 import { createUuidModule } from "./modules/uuid.js";
 
 const locales = {
@@ -26,22 +26,22 @@ const locales = {
   pt_BR,
 };
 
-export const createFaker = ({ locale = "en_US", seed } = {}) => {
+export const createMock = ({ locale = "en_US", seed } = {}) => {
   const localeData = locales[locale] || locales["es_AR"];
   const random = createRandom(seed);
 
-  const faker = {
+  const mock = {
     setSeed: (s) => random.setSeed(s),
   };
 
-  faker.person = createPersonModule({ random, locale: localeData });
-  faker.location = createLocationModule({ random, locale: localeData });
-  faker.internet = createInternetModule({ random, locale: localeData });
-  faker.phone = createPhoneModule({ random, locale: localeData });
-  faker.date = createDateModule({ random, localeCode: locale });
-  faker.uuid = createUuidModule({ random });
-  faker.dataset = createDatasetModule();
-  faker.helpers = createHelpersModule();
+  mock.person = createPersonModule({ random, locale: localeData });
+  mock.location = createLocationModule({ random, locale: localeData });
+  mock.internet = createInternetModule({ random, locale: localeData });
+  mock.phone = createPhoneModule({ random, locale: localeData });
+  mock.date = createDateModule({ random, localeCode: locale });
+  mock.uuid = createUuidModule({ random });
+  mock.dataset = createDatasetModule();
+  mock.helpers = createHelpersModule();
 
-  return faker;
+  return mock;
 };
