@@ -73,10 +73,15 @@ yarn add faker-mini
 
 Aquí tienes un ejemplo rápido de cómo usarlo en tu código:
 ```javascript
-import { faker } from 'faker-mini';
+import { createFaker } from 'faker-mini';
 
-const nombre = faker.person.fullName();
-console.log(`Hola, mi nombre es ${nombre}`);
+const faker = createFaker({ locale: 'es_AR' });
+const payload = faker.dataset.generate(1, () => ({
+  id: faker.uuid.v4(),
+  user: faker.person.fullName()
+}));
+
+console.log(payload);
 ```
 ---
 ## 🎮 Pruébalo en vivo
