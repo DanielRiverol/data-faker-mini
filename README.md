@@ -167,7 +167,7 @@ npx faker-mini dataset \
 ### `mock.dataset`
 * `.generate(count, schemaOrFactory)`
 
-*(👉 Visita la [Documentación Completa](https://danielriverol.github.io/dat-faker-mini/) para ver opciones avanzadas).*
+*(👉 Visita la [Documentación Completa](https://danielriverol.github.io/data-faker-mini/) para ver opciones avanzadas).*
 
 ---
 

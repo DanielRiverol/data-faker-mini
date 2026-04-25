@@ -23,7 +23,7 @@ const regenerar = () => {
   const apellido = faker.person.lastName();
   
   mockData.value = {
-    id: faker.uuid.v4(),
+    id: faker.id.uuid(),
     nombre: `${primerNombre} ${apellido}`,
     genero: faker.person.gender(),
     nacimiento: faker.date.format(faker.date.birthdate({ minAge: 18, maxAge: 65 }), 'YYYY-MM-DD'),
