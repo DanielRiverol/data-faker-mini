@@ -1,5 +1,5 @@
 import { defineConfig } from "vitepress";
-
+import { groupIconMdPlugin, groupIconVitePlugin } from "vitepress-plugin-group-icons";
 export default defineConfig({
   base: process.env.NODE_ENV === "production" ? "/data-faker-mini/" : "/",
   title: "Faker-Mini",
@@ -15,7 +15,7 @@ export default defineConfig({
     ],
     // Search
     search: {
-      provider: 'local'
+      provider: "local",
     },
     // Footer
     footer: {
@@ -62,5 +62,13 @@ export default defineConfig({
       prev: "Página anterior",
       next: "Página siguiente",
     },
+  },
+  markdown: {
+    config(md) {
+      md.use(groupIconMdPlugin);
+    },
+  },
+  vite: {
+    plugins: [groupIconVitePlugin()],
   },
 });
