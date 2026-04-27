@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "Faker-Mini"
-  text: "Datos falsos, rápidos y reales."
+  text: "Datos falsos, rápidos y realistas."
   tagline: Librería ultra liviana, modular y sin dependencias para generar mock data en Node.js, el navegador o la terminal.
   actions:
     - theme: brand
