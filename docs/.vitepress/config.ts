@@ -1,8 +1,10 @@
 import { defineConfig } from "vitepress";
 import { groupIconMdPlugin, groupIconVitePlugin } from "vitepress-plugin-group-icons";
+// Importamos el JSON de package.json
+import pkg from '../../package.json' with { type: 'json' };
 export default defineConfig({
   base: process.env.NODE_ENV === "production" ? "/data-faker-mini/" : "/",
-  title: "Faker-Mini",
+  title: `Faker-Mini v${pkg.version}`,
 
   description: "Librería ultra liviana para generar datos falsos.",
   lang: "es-AR", // Para que el buscador y la página entiendan que es en español

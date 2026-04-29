@@ -2,207 +2,350 @@
 
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import pc from "picocolors";
-import figures from "figures";
+import * as p from "@clack/prompts";
 import { createMock } from "../src/index.js";
+
+// --- LEER VERSIÓN DINÁMICAMENTE DESDE PACKAGE.JSON ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const pkgPath = path.resolve(__dirname, "../package.json");
+const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+const VERSION = pkg.version;
 
 const args = process.argv.slice(2);
 
-// --- ARTE ASCII PARA EL MENÚ ---
-const asciiArt = `
-  _____     _                 __  __ _       _ 
- |  ___|_ _| | _____ _ __    |  \\/  (_)_ __ (_)
- | |_ / _\` | |/ / _ \\ '__|   | |\\/| | | '_ \\| |
- |  _| (_| |   <  __/ |      | |  | | | | | | |
- |_|  \\__,_|_|\\_\\___|_|      |_|  |_|_|_| |_|_|
-`;
+// Capturamos el flag de versión de inmediato
+if (args.includes("--version") || args.includes("-v")) {
+  console.log(`v${VERSION}`);
+  process.exit(0);
+}
 
 // --- FUNCIÓN PARA MOSTRAR AYUDA ---
 const showHelp = () => {
-  console.log(pc.cyan(pc.bold(asciiArt)));
-  console.log(`
-${pc.cyan(pc.bold("Uso Simple:"))}
-  ${pc.gray(figures.pointer)} npx faker-mini ${pc.green("<modulo>")} ${pc.green("<metodo>")} ${pc.dim("[--locale <idioma>]")}
-  ${pc.dim("Ej:")} npx faker-mini person fullName --locale es_MX
+  console.log("");
+  console.log(pc.bgCyan(pc.black(pc.bold(` Faker-Mini CLI v${VERSION} `))));
+  console.log("");
 
-${pc.cyan(pc.bold("Uso Avanzado (Dataset JSON):"))}
-  ${pc.gray(figures.pointer)} npx faker-mini dataset ${pc.dim("[--count <num>] [--out <archivo.json>] [--locale <idioma>] [--schema <...>]")}
-  
-  ${pc.yellow("Ejemplo (Usuario por defecto):")}
-  npx faker-mini dataset --count 5 --out usuarios.json --locale es_AR
-  
-  ${pc.yellow("Ejemplo (Schema personalizado):")}
-  npx faker-mini dataset --count 3 --schema id:id.short,nombre:person.fullName,ciudad:location.city --out data.json
+  console.log(pc.cyan(pc.bold("Modo Interactivo (Recomendado):")));
+  console.log(
+    `  Ejecuta simplemente ${pc.green("npx faker-mini")} o ${pc.green("faker-mini")} para abrir el asistente paso a paso.\n`,
+  );
 
-${pc.cyan(pc.bold("Opciones:"))}
-  ${pc.green("--help, -h")}    Muestra este menú de ayuda.
-  `);
+  console.log(pc.cyan(pc.bold("Modo Scripting (Rápido):")));
+  console.log(
+    `  ${pc.dim("Uso:")} faker-mini ${pc.green("<modulo>")} ${pc.green("<metodo>")} ${pc.dim("[opciones]")}`,
+  );
+  console.log(
+    `  ${pc.dim("Ej:")}  faker-mini person fullName --locale es_MX\n`,
+  );
+
+  console.log(pc.cyan(pc.bold("Generación de Datasets (JSON):")));
+  console.log(`  ${pc.dim("Uso:")} faker-mini dataset ${pc.dim("[opciones]")}`);
+  console.log(
+    `  ${pc.dim("Ej:")}  faker-mini dataset --count 5 --out usuarios.json`,
+  );
+  console.log(
+    `  ${pc.dim("Ej:")}  faker-mini dataset --schema id:id.short,nombre:person.fullName\n`,
+  );
+
+  console.log(pc.cyan(pc.bold("Opciones Globales:")));
+  console.log(
+    `  ${pc.green("--locale <idioma>")}   Cambia el idioma (ej: en_US, es_AR, pt_BR).`,
+  );
+  console.log(
+    `  ${pc.green("--count <numero>")}    Cantidad de registros para el dataset (defecto: 10).`,
+  );
+  console.log(
+    `  ${pc.green("--out <archivo>")}     Ruta del archivo para guardar el JSON resultante.`,
+  );
+  console.log(
+    `  ${pc.green("--schema <formato>")}  Formato personalizado (clave:modulo.metodo,...).`,
+  );
+  console.log(
+    `  ${pc.green("--version, -v")}       Muestra la versión actual de la CLI.`,
+  );
+  console.log(
+    `  ${pc.green("--help, -h")}          Muestra este menú de ayuda.\n`,
+  );
+
   process.exit(0);
 };
 
-if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
+// Capturamos el help
+if (args.includes("--help") || args.includes("-h")) {
   showHelp();
 }
 
-// --- FUNCIÓN AUXILIAR PARA EXTRAER FLAGS ---
-const extractArg = (flag, defaultValue) => {
-  const index = args.indexOf(flag);
-  if (index !== -1 && args[index + 1] && !args[index + 1].startsWith("--")) {
-    const value = args[index + 1];
-    args.splice(index, 2);
-    return value;
+// --- 1. MODO AUTOMÁTICO (SCRIPTING) ---
+if (args.length > 0) {
+  const extractArg = (flag, defaultValue) => {
+    const index = args.indexOf(flag);
+    if (index !== -1 && args[index + 1] && !args[index + 1].startsWith("--")) {
+      const value = args[index + 1];
+      args.splice(index, 2);
+      return value;
+    }
+    return defaultValue;
+  };
+
+  const locale = extractArg("--locale", "en_US");
+  const count = parseInt(extractArg("--count", "10"), 10);
+  const outFile = extractArg("--out", null);
+  const customSchema = extractArg("--schema", null);
+
+  const [moduleName, methodName, ...methodArgs] = args;
+  const mock = createMock({ locale });
+
+  try {
+    if (moduleName === "dataset") {
+      let schemaFactory;
+      if (customSchema) {
+        const fields = customSchema.split(",");
+        schemaFactory = () => {
+          const item = {};
+          fields.forEach((field) => {
+            const [key, pathStr] = field.split(":");
+            if (!pathStr) {
+              item[key] = "Error de formato";
+              return;
+            }
+            const [mod, met] = pathStr.split(".");
+            item[key] =
+              mock[mod] && typeof mock[mod][met] === "function"
+                ? mock[mod][met]()
+                : `Error: ${mod}.${met} no existe`;
+          });
+          return item;
+        };
+      } else {
+        schemaFactory = () => ({
+          id: mock.id.mongodb(),
+          name: mock.person.fullName(),
+          email: mock.internet.email(),
+          city: mock.location.city(),
+        });
+      }
+
+      const data = mock.dataset.generate(count, schemaFactory);
+      const jsonString = JSON.stringify(data, null, 2);
+
+      if (outFile) {
+        fs.writeFileSync(
+          path.resolve(process.cwd(), outFile),
+          jsonString,
+          "utf-8",
+        );
+      } else {
+        console.log(jsonString);
+      }
+      process.exit(0);
+    }
+
+    if (
+      mock[moduleName] &&
+      typeof mock[moduleName][methodName] === "function"
+    ) {
+      console.log(mock[moduleName][methodName](...methodArgs));
+    } else {
+      console.error(
+        pc.red(`Error: El método '${moduleName}.${methodName}' no existe.`),
+      );
+      process.exit(1);
+    }
+  } catch (error) {
+    console.error(pc.red(`Error inesperado: ${error.message}`));
+    process.exit(1);
   }
-  return defaultValue;
-};
+}
 
-const locale = extractArg("--locale", "en_US");
-const count = parseInt(extractArg("--count", "10"), 10);
-const outFile = extractArg("--out", null);
-const customSchema = extractArg("--schema", null);
+// --- 2. MODO INTERACTIVO (ESTILO VITE CON CLACK) ---
+async function runInteractive() {
+  console.clear();
 
-const [moduleName, methodName, ...methodArgs] = args;
+  // Inyectamos la versión en el título del menú
+  p.intro(pc.bgCyan(pc.black(pc.bold(` Faker-Mini CLI v${VERSION} `))));
 
-// --- CABECERA ESTÁNDAR DE EJECUCIÓN ---
-console.error(
-  pc.cyan(`\n${figures.play} Faker-mini.... Generando datos....\n`),
-);
+  p.note(
+    `Herramienta ultra liviana para generar datos falsos.\n` +
+      `Crea desde un simple nombre aleatorio para pruebas rápidas,\n` +
+      `hasta miles de registros en un archivo JSON al instante.`,
+    pc.yellow("👋 ¡Bienvenido!"),
+  );
 
-// Actualizamos a mock
-const mock = createMock({ locale });
+  const action = await p.select({
+    message: "¿Qué deseas hacer?",
+    options: [
+      {
+        value: "dataset",
+        label: "Dataset completo (Múltiples registros JSON)",
+      },
+      { value: "single", label: "Dato único (Ej: Un nombre aleatorio)" },
+      { value: "help", label: "Obtener ayuda (Ver manual de la CLI)" },
+      { value: "exit", label: "Salir" },
+    ],
+  });
 
-try {
-  if (moduleName === "dataset") {
+  if (p.isCancel(action) || action === "exit") {
+    p.outro("¡Hasta luego! 👋");
+    process.exit(0);
+  }
+
+  if (action === "help") {
+    showHelp();
+    return;
+  }
+
+  const locale = await p.select({
+    message: "Selecciona el idioma (Locale):",
+    options: [
+      { value: "es_AR", label: "Español (Argentina)" },
+      { value: "es_MX", label: "Español (México)" },
+      { value: "es_ES", label: "Español (España)" },
+      { value: "en_US", label: "Inglés (USA)" },
+      { value: "pt_BR", label: "Portugués (Brasil)" },
+      { value: "fr_FR", label: "Francés (Francia)" },
+      { value: "de_DE", label: "Alemán (Alemania)" },
+    ],
+  });
+
+  if (p.isCancel(locale)) {
+    p.cancel("Operación cancelada.");
+    process.exit(0);
+  }
+
+  const mock = createMock({ locale });
+
+  if (action === "dataset") {
+    const countStr = await p.text({
+      message: "¿Cuántos registros deseas generar?",
+      placeholder: "10",
+      defaultValue: "10",
+    });
+
+    if (p.isCancel(countStr)) return p.cancel("Operación cancelada.");
+    const count = parseInt(countStr, 10);
+
+    const schemaType = await p.select({
+      message: "¿Qué estructura (Schema) quieres usar?",
+      options: [
+        { value: "default", label: "Por defecto (id, nombre, email, ciudad)" },
+        {
+          value: "custom",
+          label: "Personalizado (escribir mis propios campos)",
+        },
+      ],
+    });
+
+    if (p.isCancel(schemaType)) return p.cancel("Operación cancelada.");
+
     let schemaFactory;
 
-    if (customSchema) {
-      const fields = customSchema.split(",");
+    if (schemaType === "custom") {
+      const customSchemaStr = await p.text({
+        message:
+          "Escribe tu schema (formato -> clave:modulo.metodo,clave2...):",
+        placeholder:
+          "id:id.short,nombre:person.firstName,pass:internet.password",
+        validate: (value) => {
+          if (!value) return "El schema no puede estar vacío";
+          if (!value.includes(":"))
+            return "Debe tener al menos una 'clave:método'";
+        },
+      });
+
+      if (p.isCancel(customSchemaStr)) return p.cancel("Operación cancelada.");
+
+      const fields = customSchemaStr.split(",");
       schemaFactory = () => {
         const item = {};
         fields.forEach((field) => {
           const [key, pathStr] = field.split(":");
-          const [mod, met] = pathStr.split(".");
-
-          if (mock[mod] && typeof mock[mod][met] === "function") {
-            item[key] = mock[mod][met]();
-          } else {
-            item[key] = `Error: Método ${mod}.${met} no encontrado`;
+          if (!pathStr) {
+            item[key] = "Error de formato";
+            return;
           }
+          const [mod, met] = pathStr.split(".");
+          item[key] =
+            mock[mod] && typeof mock[mod][met] === "function"
+              ? mock[mod][met]()
+              : `Error: ${mod}.${met} no existe`;
         });
         return item;
       };
     } else {
-      // --- TRADUCCIÓN DINÁMICA DE CLAVES ---
-      const translations = {
-        en: {
-          id: "id",
-          name: "name",
-          email: "email",
-          phone: "phone",
-          city: "city",
-          registeredAt: "registeredAt",
-        },
-        es: {
-          id: "id",
-          name: "nombre",
-          email: "email",
-          phone: "telefono",
-          city: "ciudad",
-          registeredAt: "registrado",
-        },
-        fr: {
-          id: "id",
-          name: "nom",
-          email: "email",
-          phone: "telephone",
-          city: "ville",
-          registeredAt: "inscritLe",
-        },
-        de: {
-          id: "id",
-          name: "name",
-          email: "email",
-          phone: "telefon",
-          city: "stadt",
-          registeredAt: "registriertAm",
-        },
-        pt: {
-          id: "id",
-          name: "nome",
-          email: "email",
-          phone: "telefone",
-          city: "cidade",
-          registeredAt: "registradoEm",
-        },
-      };
-
-      // Extraemos las primeras dos letras (ej: "fr" de "fr_FR")
-      const langPrefix = locale.split("_")[0];
-
-      // Si el idioma no existe en nuestro diccionario, usamos inglés por defecto
-      const t = translations[langPrefix] || translations["en"];
-
-      schemaFactory = () => {
-        const firstName = mock.person.firstName();
-        const lastName = mock.person.lastName();
-
-        // Usamos [t.clave] para asignar el nombre de la propiedad dinámicamente
-        return {
-          [t.id]: mock.id.mongodb(), // ¡Actualizado al nuevo módulo de IDs!
-          [t.name]: `${firstName} ${lastName}`,
-          [t.email]: mock.internet.email({ firstName, lastName }),
-          [t.phone]: mock.phone.number(),
-          [t.city]: mock.location.city(),
-          [t.registeredAt]: mock.date.format(
-            mock.date.past(2),
-            "YYYY-MM-DD HH:mm:ss",
-          ),
-        };
-      };
+      schemaFactory = () => ({
+        id: mock.id.mongodb(),
+        nombre: mock.person.fullName(),
+        email: mock.internet.email(),
+        ciudad: mock.location.city(),
+      });
     }
 
-    console.error(
-      pc.yellow(`${figures.info} Procesando ${pc.bold(count)} registros...`),
-    );
+    const outType = await p.select({
+      message: "¿Dónde quieres ver el resultado?",
+      options: [
+        { value: "console", label: "Imprimir en consola" },
+        { value: "file", label: "Guardar en un archivo .json" },
+      ],
+    });
+
+    if (p.isCancel(outType)) return p.cancel("Operación cancelada.");
+
+    let fileName = null;
+    if (outType === "file") {
+      fileName = await p.text({
+        message: "Nombre del archivo:",
+        placeholder: "usuarios.json",
+        defaultValue: "usuarios.json",
+      });
+      if (p.isCancel(fileName)) return p.cancel("Operación cancelada.");
+    }
+
+    const s = p.spinner();
+    s.start("Generando datos...");
 
     const data = mock.dataset.generate(count, schemaFactory);
-    const jsonString = JSON.stringify(data, null, 2);
 
-    if (outFile) {
-      const targetPath = path.resolve(process.cwd(), outFile);
-      fs.writeFileSync(targetPath, jsonString, "utf-8");
-      console.error(
-        pc.green(`\n${figures.tick} Archivo guardado con éxito en: `) +
-          pc.underline(targetPath),
-      );
+    s.stop(`¡Generados ${count} registros con éxito!`);
+
+    if (outType === "file") {
+      const targetPath = path.resolve(process.cwd(), fileName);
+      fs.writeFileSync(targetPath, JSON.stringify(data, null, 2), "utf-8");
+      p.outro(`Archivo guardado en: ${pc.underline(pc.green(targetPath))}`);
     } else {
-      console.log(jsonString);
+      console.log(JSON.stringify(data, null, 2));
+      p.outro("¡Proceso finalizado!");
     }
-    process.exit(0);
-  }
+  } else if (action === "single") {
+    const moduleName = await p.select({
+      message: "Selecciona el módulo:",
+      options: Object.keys(mock)
+        .filter((k) => k !== "setSeed" && k !== "dataset" && k !== "helpers")
+        .map((mod) => ({ value: mod, label: mod })),
+    });
 
-  // --- MODO SIMPLE ---
-  if (mock[moduleName] && typeof mock[moduleName][methodName] === "function") {
-    const result = mock[moduleName][methodName](...methodArgs);
-    console.log(result);
-  } else {
-    console.error(
-      pc.red(
-        `${figures.cross} Error: El método '${pc.bold(`${moduleName}.${methodName}`)}' no existe.`,
-      ),
+    if (p.isCancel(moduleName)) return p.cancel("Operación cancelada.");
+
+    const methods = Object.keys(mock[moduleName]).filter(
+      (k) => typeof mock[moduleName][k] === "function",
     );
-    console.error(
-      pc.yellow(
-        `${figures.info} Sugerencia: Usa '${pc.bold("npx faker-mini --help")}' para ver las opciones disponibles.`,
-      ),
-    );
-    process.exit(1);
+
+    const methodName = await p.select({
+      message: "Selecciona el método:",
+      options: methods.map((met) => ({ value: met, label: met })),
+    });
+
+    if (p.isCancel(methodName)) return p.cancel("Operación cancelada.");
+
+    const result = mock[moduleName][methodName]();
+
+    p.note(pc.green(result), "Resultado:");
+    p.outro("¡Completado!");
   }
-} catch (error) {
-  console.error(
-    pc.bgRed(
-      pc.white(pc.bold(` ${figures.warning} Ocurrió un error inesperado: `)),
-    ),
-    pc.red(error.message),
-  );
-  process.exit(1);
+}
+
+if (args.length === 0) {
+  runInteractive();
 }
