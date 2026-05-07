@@ -15,6 +15,8 @@ import { createDatasetModule } from "./modules/dataset.js";
 import { createHelpersModule } from "./modules/helpers.js";
 import { createDateModule } from "./modules/date.js";
 import { createIdModule } from "./modules/ids.js";
+import { createCommerceModule } from "./modules/commerce.js";
+import { createImageModule } from "./modules/image.js";
 
 const locales = {
   de_DE,
@@ -42,6 +44,9 @@ export const createMock = ({ locale = "en_US", seed } = {}) => {
   mock.id = createIdModule({ random });
   mock.dataset = createDatasetModule();
   mock.helpers = createHelpersModule();
+  mock.commerce = createCommerceModule({ random, localeCode: locale });
+  mock.image = createImageModule({ random });
+
 
   return mock;
 };

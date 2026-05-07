@@ -44,6 +44,8 @@ export default defineConfig({
           { text: "Location", link: "/api/location" },
           { text: "Phone", link: "/api/phone" },
           { text: "IDs", link: "/api/ids" },
+          { text: "Commerce", link: "/api/commerce" },
+          { text: "Image", link: "/api/image" },
         ],
       },
     ],
